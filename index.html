@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yakeey Squad Builder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Syne:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app" class="builder">
+      <header class="topbar">
+        <div class="topbar__brand">
+          <img
+            class="logo"
+            src="/assets/yakeey-wordmark.png"
+            alt="Yakeey"
+            width="160"
+            height="34"
+          />
+          <span class="topbar__sep">Squad Builder</span>
+        </div>
+        <div class="topbar__meta">
+          <label class="formation-select">
+            Formation
+            <select id="formation-select">
+              <option value="433" selected>4-3-3</option>
+              <option value="442">4-4-2</option>
+              <option value="4231">4-2-3-1</option>
+            </select>
+          </label>
+          <div class="mode-toggle" role="group" aria-label="Mode d'équipe">
+            <button type="button" class="btn is-active" id="btn-place">
+              Placer
+            </button>
+            <button type="button" class="btn btn--accent" id="btn-autofill">
+              Auto XI
+            </button>
+          </div>
+          <button type="button" class="btn" id="btn-clear">Vider</button>
+        </div>
+      </header>
+
+      <main class="builder__main">
+        <section class="pitch-wrap">
+          <div class="pitch-stage">
+            <div class="pitch" id="pitch">
+              <div class="pitch__field" aria-hidden="true">
+                <img
+                  class="pitch__stadium"
+                  src="/assets/lineup-pitch-ref.png"
+                  alt=""
+                  draggable="false"
+                />
+              </div>
+              <div class="pitch__board">
+                <div class="pitch__slots" id="slots"></div>
+              </div>
+              <button
+                type="button"
+                class="slot coach-slot"
+                id="coach-slot"
+                data-coach="1"
+                title="Entraîneur ACC"
+              ></button>
+            </div>
+          </div>
+          <div class="bench-wrap">
+            <div class="bench-wrap__head">
+              <h2>Changements</h2>
+              <span id="bench-count">0 / 7</span>
+            </div>
+            <div class="bench" id="bench" aria-label="7 changements"></div>
+          </div>
+        </section>
+
+        <aside class="squad-panel">
+          <div class="squad-panel__head">
+            <h1>Squad info</h1>
+            <p id="formation-label">4-3-3</p>
+          </div>
+
+          <div class="squad-rating">
+            <span>Squad Rating</span>
+            <strong id="squad-rating">0</strong>
+          </div>
+
+          <canvas
+            id="preview-3d"
+            width="280"
+            height="360"
+            aria-label="Aperçu 3D carte"
+          ></canvas>
+
+          <div class="photo-uploads" id="photo-uploads">
+            <div class="photo-uploads__head">
+              <h2>Photos, noms & notes</h2>
+              <p>Chaque carte est unique — photo dans le cadre ovale, nom et note (OVR)</p>
+            </div>
+            <div class="photo-uploads__grid" id="photo-uploads-grid"></div>
+          </div>
+
+          <div class="stat-grid" id="squad-stats">
+            <div><span>PUB</span><b>—</b></div>
+            <div><span>CLU</span><b>—</b></div>
+            <div><span>TRF</span><b>—</b></div>
+            <div><span>SAT</span><b>—</b></div>
+            <div><span>TXN</span><b>—</b></div>
+            <div><span>CA</span><b>—</b></div>
+          </div>
+
+          <div class="line-avgs" id="line-avgs"></div>
+
+          <div class="selected-card" id="selected-info" hidden>
+            <p class="selected-card__theme" id="sel-theme"></p>
+            <h2 id="sel-name"></h2>
+            <p id="sel-meta"></p>
+            <p class="selected-card__ovr">
+              OVR <strong id="sel-ovr"></strong>
+            </p>
+            <p class="selected-card__formula" id="sel-formula"></p>
+          </div>
+        </aside>
+      </main>
+
+      <footer class="builder__foot">
+        Clique un poste pour choisir une carte · glisse pour la déplacer · × pour retirer
+      </footer>
+    </div>
+
+    <div class="pick-modal" id="pick-modal" hidden>
+      <div class="pick-modal__backdrop" data-close-pick></div>
+      <div class="pick-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="pick-title">
+        <button type="button" class="card-modal__close" data-close-pick aria-label="Fermer">
+          ×
+        </button>
+        <div class="pick-modal__meta">
+          <p class="card-modal__theme">Choisir une carte</p>
+          <h2 id="pick-title">Poste</h2>
+          <p id="pick-hint">Carte libre, ou déjà posée — elle sera déplacée ici</p>
+        </div>
+        <div class="pick-modal__grid" id="pick-grid"></div>
+      </div>
+    </div>
+
+    <div class="card-modal" id="card-modal" hidden>
+      <div class="card-modal__backdrop" data-close-modal></div>
+      <div class="card-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modal-card-name">
+        <button type="button" class="card-modal__close" data-close-modal aria-label="Fermer">
+          ×
+        </button>
+        <div class="card-modal__meta">
+          <p class="card-modal__theme" id="modal-card-theme"></p>
+          <h2 id="modal-card-name"></h2>
+          <p id="modal-card-meta"></p>
+          <p class="card-modal__ovr">OVR <strong id="modal-card-ovr"></strong></p>
+        </div>
+        <canvas id="modal-preview-3d" width="420" height="560" aria-label="Carte en 3D"></canvas>
+        <p class="card-modal__hint">Glisse pour tourner la carte</p>
+      </div>
+    </div>
+
+    <div class="photo-fit-modal" id="photo-fit-modal" hidden>
+      <div class="photo-fit-modal__backdrop" data-close-fit></div>
+      <div class="photo-fit-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="photo-fit-title">
+        <button type="button" class="card-modal__close" data-close-fit aria-label="Fermer">
+          ×
+        </button>
+        <div class="photo-fit-modal__meta">
+          <p class="card-modal__theme">Cadre photo</p>
+          <h2 id="photo-fit-title">Ajuster la photo</h2>
+          <p id="photo-fit-name"></p>
+          <p class="photo-fit-modal__hint">
+            Glisse pour déplacer · molette pour zoomer — le cadre ovale reste fixe
+          </p>
+        </div>
+        <canvas id="photo-fit-canvas" width="300" height="450" aria-label="Recadrage photo"></canvas>
+        <label class="photo-fit-zoom">
+          Zoom
+          <input type="range" id="photo-fit-zoom" min="100" max="350" value="100" />
+        </label>
+        <div class="photo-fit-modal__actions">
+          <button type="button" class="photo-upload__btn photo-upload__btn--ghost" id="photo-fit-recenter">
+            Recentrer
+          </button>
+          <button type="button" class="photo-upload__btn" id="photo-fit-apply">
+            Valider
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

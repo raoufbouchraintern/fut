@@ -1,0 +1,21 @@
+{
+  "name": "yakeey-advisor-cards",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host --port 5173",
+    "build": "vite build",
+    "preview": "vite preview --host --port 5173"
+  },
+  "dependencies": {
+    "@imgly/background-removal": "^1.7.0",
+    "animejs": "^3.2.2",
+    "esbuild": "^0.28.2",
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.4",
+    "vite": "^6.0.0"
+  }
+}
